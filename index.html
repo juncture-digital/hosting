@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juncture</title>
+  <title></title>
+  <link href="/favicon.ico" rel="icon"/>
   <style>
     .visible { visibility: visible; opacity: 1; transition: opacity .5s linear; }
     .hidden { visibility: hidden; opacity: 0; transition: visibility 0s .5s, opacity .5s linear; }
@@ -17,8 +18,8 @@
   
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   
-  <!-- This is used for deep linking of Single Page Apps when hosted with GitHub Pages -->
   <script type="text/javascript">
+    // This is used for deep linking of Single Page Apps when hosted with GitHub Pages
     (function(l) {
       if (l.search[1] === '/' ) {
         let decoded = l.search.slice(1).split('&').map(s => s.replace(/~and~/g, '&')).join('?')
@@ -35,12 +36,12 @@
         acct: '',
         repo: '',
         ref: '',
+        path: '',
         html: null
       }),
       computed: {
         isGhp() { return location.host.indexOf('github.io') > 0 },
         pathElems() { return location.pathname.split('/').filter(elem => elem) },
-        path() { return this.pathElems.slice(this.isGhp ? 1 : 0).join('/') },
         prefix() { return [this.acct, this.repo].filter(elem => elem).join('/') },
         base() { return this.pathElems.length > 0 ? `/${this.pathElems.join('/')}/` : '/' },
         baseQarg() {
@@ -48,32 +49,31 @@
           return basePathElems.length > 0 ? `/${basePathElems.join('/')}/` : '/'
         }
       },
-      created() {},
-      async mounted() {
+      async mounted() { 
         let config = await this.loadConfig()
-        this.acct = config.acct|| this.acct || (this.isGhp ? location.host.split('.')[0] : this.pathElems.length > 0 ? this.pathElems[0] : '')
-        this.repo = config.repo || this.repo || (this.isGhp ? this.pathElems.length > 0 ? this.pathElems[0] : '' : this.pathElems.length > 1 ? this.pathElems[1] : '')
-        this.ref = config.ref || ''
+        this.acct = config.acct || (this.isGhp ? location.host.split('.')[0] : 'jstor-labs')
+        this.repo = config.repo || (this.isGhp ? this.pathElems[0] : 'juncture-webapp')
+        this.ref = config.ref
+        this.path = this.pathElems.slice(this.isGhp ? 1 : 0).join('/')
         document.head.querySelector('base').href = this.base
         console.log(`acct=${this.acct} repo=${this.repo} ref=${this.ref} path=${this.path} prefix=${this.prefix} base=${this.base} isGhp=${this.isGhp}`)
-        this.loadPage()
+        this.loadPage() 
       },
       methods: {
 
         async loadConfig() {
-          return fetch('/config.yaml').then(resp => resp.ok ? resp.text() : '')
-            .then(configYaml => 
-              Object.fromEntries(configYaml.split('\n')
-                .map(line => line.trim()).filter(line => line)
-                .map(line => line.split(':').map(part => part.trim()))
-              )
-            )
+          let resp = await fetch(this.isGhp ? `${this.pathElems[0]}/config.yaml` : 'config.yaml')
+          if (resp.ok) {
+            let lines = (await resp.text()).split('\n').filter(ln => ln.trim())
+            if (lines.length > 0 && lines[0] !== '<!DOCTYPE html>') 
+              return Object.fromEntries(lines.map(rec => rec.split(':').map(part => part.trim())))
+          }
+          return {}
         },
 
         loadPage() {
           let url = `https://api.juncture-digital.org/html/${this.prefix}/${this.path}${this.path === '' ? '' : '/'}?base=${this.baseQarg}&prefix=${this.prefix}&inline=true`
           if (this.ref) url += `&ref=${this.ref}`
-          console.log('loadPage', url)
           fetch(url).then(resp => resp.text())
           .then(html => {
             let [head, body] = new DOMParser().parseFromString(html, 'text/html').children[0].children
