@@ -2,32 +2,20 @@
 # -*- coding: utf-8 -*-
 
 '''
-Flask app for Juncture site.
-Dependencies: expiringdict Flask Flask-Cors PyYAML requests serverless_wsgi
+Flask app for self-hosted Juncture site.
+Dependencies: Flask PyYAML requests
 '''
 
-CONTENT = 'juncture-digital/hosting' # Github username/repo containing sie content
+CONTENT = 'juncture-digital/hosting' # Github username/repo containing site content
 
-import argparse, expiringdict, flask, flask_cors, logging, os, requests, urllib.parse, yaml
-
-logging.basicConfig(format='%(asctime)s : %(filename)s : %(levelname)s : %(message)s', level=logging.INFO)
+import argparse, flask, logging, os, requests, urllib.parse, yaml
 logging.getLogger('requests').setLevel(logging.WARNING)
-logger = logging.getLogger()
 
 app = flask.Flask(__name__)
-flask_cors.CORS(app)
-
-# For AWS Lambda hosting
-try:
-  from serverless_wsgi import handle_request
-  def handler(event, context):
-    return handle_request(app, event, context)
-except:
-  pass
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
-CONFIG = yaml.load(open(f'{SCRIPT_DIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader)
-SEARCH_CACHE = expiringdict.ExpiringDict(max_len=1000, max_age_seconds=24 * 60 * 60)
+CONFIG = yaml.load(open(f'{SCRIPT_DIR}/config.yaml', 'r').read(), Loader=yaml.FullLoader) if os.path.exists(f'{SCRIPT_DIR}/config.yaml') else {}
+SEARCH_CACHE = {}
 USE_LOCAL_CONTENT = False
 
 def _get_local_content(path):
