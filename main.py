@@ -94,5 +94,5 @@ if __name__ == '__main__':
       USE_LOCAL_CONTENT = True
     else:
       CONTENT = args.content # Github username/repo containing site content
-  print(f'\nCONTENT: {CONTENT}\n')
+  print(f'\nAPI_ENDPOINT: {API_ENDPOINT}\nWC_ENDPOINT: {WC_ENDPOINT}\CONTENT: {CONTENT}\n')
   app.run(debug=True, host='0.0.0.0', port=args.port)

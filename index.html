@@ -74,6 +74,7 @@
         loadPage() {
           let url = `https://api.juncture-digital.org/html/${this.prefix}/${this.path}${this.path === '' ? '' : '/'}?base=${this.baseQarg}&prefix=${this.prefix}&inline=true`
           if (this.ref) url += `&ref=${this.ref}`
+          if (this.isGhp) url += '&ghp=true'
           fetch(url).then(resp => resp.text())
           .then(html => {
             let [head, body] = new DOMParser().parseFromString(html, 'text/html').children[0].children
