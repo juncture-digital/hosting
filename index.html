@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title></title>
-  <link href="/favicon.ico" rel="icon"/>
+  <link href="favicon.ico" rel="icon"/>
   <style>
     .visible { visibility: visible; opacity: 1; transition: opacity .5s linear; }
     .hidden { visibility: hidden; opacity: 0; transition: visibility 0s .5s, opacity .5s linear; }
@@ -56,6 +56,7 @@
         this.ref = config.ref
         this.path = this.pathElems.slice(this.isGhp ? 1 : 0).join('/')
         document.head.querySelector('base').href = this.base
+        document.head.querySelector('link[rel="icon"]').href = `${this.base}favicon.ico`
         console.log(`acct=${this.acct} repo=${this.repo} ref=${this.ref} path=${this.path} prefix=${this.prefix} base=${this.base} isGhp=${this.isGhp}`)
         this.loadPage() 
       },
